@@ -3,25 +3,19 @@ import { fetchNotes } from "@/lib/api";
 import NotesClient from "./Notes.client";
 import { NoteTag } from "@/types/note";
 
-interface PageProps {
-  params: {
-    tag?: string[];
-  };
-}
+export default async function FilteredNotesPage({ params }: { params: Promise<{ tag?: string[] }> }) {
+  
+  const { tag: tagArray } = await params;
 
-export default async function FilteredNotesPage({ params }: PageProps) {
-  const tagArray = params.tag;
-
-  const currentTag =
-    tagArray && tagArray[0] !== "all"
-      ? (tagArray[0] as NoteTag)
-      : undefined;
+  
+  const rawTag = tagArray && tagArray[0] !== "all" ? tagArray[0] : undefined;
+  const currentTag = rawTag ? (rawTag.toLowerCase() as NoteTag) : undefined;
 
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: ["notes", currentTag],
-    queryFn: () => fetchNotes({ tag: currentTag }),
+    queryKey: ["notes", currentTag, 1, ""],
+    queryFn: () => fetchNotes({ page: 1, tag: currentTag, search: "" }),
   });
 
   return (
