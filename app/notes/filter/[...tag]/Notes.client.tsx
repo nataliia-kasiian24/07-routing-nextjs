@@ -4,16 +4,13 @@ import { useState, useEffect } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useDebouncedCallback } from "use-debounce";
 import { fetchNotes } from "@/lib/api";
-import { NoteTag } from "@/types/note"; 
-
 import { NoteList } from "@/components/NoteList/NoteList";
 import { Modal } from "@/components/Modal/Modal";
 import { NoteForm } from "@/components/NoteForm/NoteForm";
 import { Pagination } from "@/components/Pagination/Pagination";
 import { SearchBox } from "@/components/SearchBox/SearchBox";
-
+import { NoteTag } from "@/types/note";
 import css from "./NotesPage.module.css";
-
 
 export default function NotesClient({ activeTag }: { activeTag?: string }) {
   const [page, setPage] = useState(1);
@@ -35,7 +32,8 @@ export default function NotesClient({ activeTag }: { activeTag?: string }) {
       page,
       perPage: 12,
       search,
-      tag: activeTag as NoteTag 
+     
+      tag: activeTag && activeTag !== 'all' ? (activeTag as NoteTag) : undefined
     }),
     placeholderData: keepPreviousData,
   });
@@ -45,7 +43,6 @@ export default function NotesClient({ activeTag }: { activeTag?: string }) {
     setPage(1);
   }, 500);
 
- 
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
@@ -64,7 +61,8 @@ export default function NotesClient({ activeTag }: { activeTag?: string }) {
 
       <main>
         {isLoading && <p>Завантаження нотаток...</p>}
-        {isError && <p>Помилка завантаження. Перевірте формат тега.</p>}
+        {isError && <p style={{ color: 'red' }}>Сталася помилка при завантаженні (400 Bad Request).</p>}
+        
         {data && data.notes.length > 0 ? (
           <NoteList notes={data.notes} />
         ) : (
