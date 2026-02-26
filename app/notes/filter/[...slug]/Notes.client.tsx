@@ -12,7 +12,7 @@ import { SearchBox } from "@/components/SearchBox/SearchBox";
 import { NoteTag } from "@/types/note";
 import css from "./NotesPage.module.css";
 
-export default function NotesClient({ activeTag }: { activeTag?: string }) {
+export default function NotesClient({ activeTag }: { activeTag?: NoteTag }) {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,17 +26,16 @@ export default function NotesClient({ activeTag }: { activeTag?: string }) {
   }, [activeTag]);
 
   const { data, isLoading, isError } = useQuery({
-    
-    queryKey: ["notes", activeTag, page, search],
-    queryFn: () => fetchNotes({
-      page,
-      perPage: 12,
-      search,
-     
-      tag: activeTag && activeTag !== 'all' ? (activeTag as NoteTag) : undefined
-    }),
-    placeholderData: keepPreviousData,
-  });
+  
+  queryKey: ["notes", activeTag, page, search], 
+  queryFn: () => fetchNotes({
+    page,
+    perPage: 12,
+    search, 
+    tag: activeTag 
+  }),
+  placeholderData: keepPreviousData,
+});
 
   const handleSearch = useDebouncedCallback((value: string) => {
     setSearch(value);

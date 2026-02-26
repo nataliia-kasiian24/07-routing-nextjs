@@ -4,12 +4,12 @@ import NotesClient from "./Notes.client";
 import { NoteTag } from "@/types/note";
 
 interface PageProps {
-  params: Promise<{ tag?: string[] }>;
+  params: Promise<{ slug?: string[] }>;
 }
 
 export default async function FilteredNotesPage({ params }: PageProps) {
  
-  const { tag: tagArray } = await params;
+  const { slug: tagArray } = await params;
 
   const rawTag = tagArray && tagArray[0] !== "all" ? tagArray[0] : undefined;
   const currentTag = rawTag ? (rawTag.toLowerCase() as NoteTag) : undefined;
@@ -24,7 +24,7 @@ export default async function FilteredNotesPage({ params }: PageProps) {
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <section>
-        <NotesClient  />
+        <NotesClient activeTag={currentTag} />
       </section>
     </HydrationBoundary>
   );
