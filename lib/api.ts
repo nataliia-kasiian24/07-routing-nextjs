@@ -28,8 +28,19 @@ export const fetchNoteById = async (id: string): Promise<Note> => {
 };
 
 export const fetchNotes = async (params: FetchNotesParams): Promise<FetchNotesResponse> => {
+  
+  const formattedTag = params.tag 
+    ? (params.tag.charAt(0).toUpperCase() + params.tag.slice(1).toLowerCase()) as NoteTag 
+    : undefined;
+
+  const filteredParams = Object.fromEntries(
+    Object.entries({ ...params, tag: formattedTag }).filter(
+      ([, value]) => value !== undefined && value !== ""
+    )
+  );
+
   const { data } = await instance.get<FetchNotesResponse>("/notes", {
-    params, 
+    params: filteredParams, 
   });
   return data;
 };
@@ -44,4 +55,4 @@ export const createNote = async (
 export const deleteNote = async (id: string): Promise<Note> => {
   const { data } = await instance.delete<Note>(`/notes/${id}`);
   return data;
-};
+}
