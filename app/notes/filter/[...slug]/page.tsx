@@ -1,21 +1,33 @@
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
+import { notFound } from "next/navigation";
 import { fetchNotes } from "@/lib/api";
 import NotesClient from "./Notes.client";
 import { NoteTag } from "@/types/note";
 
 interface PageProps {
-  params: Promise<{ slug?: string[] }>;
+  params: Promise<{ slug?: string[] | string }>;
 }
 
 export default async function FilteredNotesPage({ params }: PageProps) {
- 
-  const { slug: tagArray } = await params;
+  const { slug } = await params;
 
-  const rawTag = tagArray && tagArray[0] !== "all" ? tagArray[0] : undefined;
-  const currentTag = rawTag 
-  ? (rawTag.charAt(0).toUpperCase() + rawTag.slice(1).toLowerCase() as NoteTag) 
-    : undefined;
-  
+  const rawTag = Array.isArray(slug) ? slug[0] : slug;
+
+  const allowedTags: string[] = ["Work", "Personal", "Meeting", "Shopping", "Todo"];
+
+  let currentTag: NoteTag | undefined = undefined;
+
+  if (rawTag && rawTag !== "all") {
+    
+    const formattedTag = rawTag.charAt(0).toUpperCase() + rawTag.slice(1).toLowerCase();
+
+    if (!allowedTags.includes(formattedTag)) {
+      return notFound(); 
+    }
+
+    currentTag = formattedTag as NoteTag;
+  }
+
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
