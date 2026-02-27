@@ -12,8 +12,10 @@ export default async function FilteredNotesPage({ params }: PageProps) {
   const { slug: tagArray } = await params;
 
   const rawTag = tagArray && tagArray[0] !== "all" ? tagArray[0] : undefined;
-  const currentTag = rawTag ? (rawTag.toLowerCase() as NoteTag) : undefined;
-
+  const currentTag = rawTag 
+  ? (rawTag.charAt(0).toUpperCase() + rawTag.slice(1).toLowerCase() as NoteTag) 
+    : undefined;
+  
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
