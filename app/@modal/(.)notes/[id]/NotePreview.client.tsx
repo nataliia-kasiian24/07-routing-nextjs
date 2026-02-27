@@ -1,28 +1,47 @@
-'use client'
+'use client';
 
-import { useQuery } from '@tanstack/react-query'; 
-import { fetchNoteById } from '@/lib/api';
+import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation'; 
+import { fetchNoteById } from '@/lib/api'; 
 import css from './NotePreview.module.css';
 
-export default function NotePreview({ id }: { id: string }) {
-  
+interface NotePreviewProps {
+  id: string;
+}
+
+export default function NotePreview({ id }: NotePreviewProps) {
+  const router = useRouter();
+
   const { data: note, isLoading } = useQuery({
     queryKey: ['note', id],
     queryFn: () => fetchNoteById(id),
+    refetchOnMount: false, 
   });
 
-  if (isLoading) return <p>Завантаження...</p>;
-  if (!note) return <p>Нотатку не знайдено</p>;
+ 
+  const handleClose = () => {
+    router.back(); 
+  };
+
+  if (isLoading) return <div>Loading...</div>;
+  if (!note) return null;
 
   return (
     <div className={css.container}>
-      <h2 className={css.title}>{note.title}</h2>
-      <p className={css.text}>{note.content}</p>
-      {note.tag && (
-        <div className={css.tags}>
-          <span className={css.tag}>#{note.tag}</span>
-        </div>
-      )}
+      <div className={css.header}>
+        <h2>{note.title}</h2>
+        <button className={css.backBtn} onClick={handleClose}>
+          Close
+        </button>
+      </div>
+
+      <div className={css.item}>
+        <span className={css.tag}>{note.tag}</span>
+        <div className={css.content}>{note.content}</div>
+        <p className={css.date}>
+          Created at: {new Date(note.createdAt).toLocaleDateString()}
+        </p>
+      </div>
     </div>
-  );
+);
 }
